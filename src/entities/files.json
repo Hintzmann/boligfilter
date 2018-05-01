@@ -1,0 +1,14 @@
+[
+  {
+    "url": "/static/data/data1.json",
+    "name": "JSON1"
+  },
+  {
+    "url": "/static/data/data2.json",
+    "name": "JSON2"
+  },
+  {
+    "url": "/static/data/data3.json",
+    "name": "JSON3"
+  }
+]
