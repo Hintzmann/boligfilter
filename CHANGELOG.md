@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.1] - 2018-05-02
+## [0.0.2] - 2018-05-02
 ### Added
 - Gmap panels
 - Changelog file
