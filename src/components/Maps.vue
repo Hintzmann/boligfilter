@@ -1,102 +1,92 @@
 <template>
   <section class="gmap">
 
-    <div id="pane-list" class="pane" :class="{ 'is-collapsed': !panels.isListOpen, 'is-top': panels.isListTop }" @click="panels.isListTop = true; panels.isFilterTop = false">
-      <button class="toggle is-right" @click="panels.isListOpen = !panels.isListOpen">
-        <span class="icon" v-if="panels.isListOpen">&#9668;</span>
-        <span class="icon" v-if="!panels.isListOpen">&#9658;</span>
-      </button>
-      <div class="content">
-        <div class="item"
-            :key="r.propertyId"
-            v-for="(r, index) in filteredResidences" 
-            :class="{'is-selected': r.propertyId == infoWindow.currentPropertyId }" 
-            :id="r.propertyId" 
-            @click="toggleInfoWindow(r,index)">
-          <h2 class="title">
-            {{r.address1}} 
-            <br>
-            {{r.zipCode.zipCodeId}} {{r.zipCode.name}}
-          </h2>
-          <div class="text">
-            <p>
-              Kontantpris <strong>{{r.price | toCurrency}}</strong> — <strong>{{r.pricePerM2 | toCurrency}}/m²</strong>
-            </p>
-            <p>
-              {{r.propertyType.name}},
-              {{r.totalNumberOfRooms}} vær., 
-              {{r.propertySizeAdvertized}} m²,
-              bygget i {{r.builtYear}}
-            </p>
+
+    <gmap-panel align="left" id="panel-list">
+      <div class="item"
+          :key="r.propertyId"
+          v-for="(r) in filteredResidences" 
+          :class="{'is-selected': r.propertyId == infoWindow.currentPropertyId }" 
+          :id="r.propertyId" 
+          @click="toggleInfoWindow(r)">
+        <h2 class="title" role="link" tabindex="0" @focus="toggleInfoWindow(r)">
+          {{r.address1}} 
+          <br>
+          {{r.zipCode.zipCodeId}} {{r.zipCode.name}}
+        </h2>
+        <div class="text">
+          <p>
+            Kontantpris <strong>{{r.price | toCurrency}}</strong> — <strong>{{r.pricePerM2 | toCurrency}}/m²</strong>
+          </p>
+          <p>
+            {{r.propertyType.name}},
+            {{r.totalNumberOfRooms}} vær., 
+            {{r.propertySizeAdvertized}} m²,
+            bygget i {{r.builtYear}}
+          </p>
+        </div>
+      </div>  
+    </gmap-panel>
+
+
+    <gmap-panel align="right" id="panel-filter">
+      <fieldset class="fieldset">
+        <legend class="legend">
+          Filter
+          <span class="badge">{{filteredResidences.length}}</span>
+          <small class="reset float-right" @click.stop="setFilters" role="link" tabindex="0">reset</small>
+        </legend>
+        <div>
+          <div class="field">
+            <label class="label" for="txtAdresse">Adresse</label>
+            <div>
+              <input id="txtAdresse" type="text" class="input" accesskey="s" title="Search [s]" v-model="filters.searchText">
+            </div>
           </div>
-        </div>  
-      </div>
-    </div>
-
-    <div id="pane-filter" class="pane" :class="{ 'is-collapsed': !panels.isFilterOpen, 'is-top': panels.isFilterTop }" @click="panels.isListTop = false; panels.isFilterTop = true">
-      <button class="toggle is-left" @click="panels.isFilterOpen = !panels.isFilterOpen">
-        <span class="icon" v-if="!panels.isFilterOpen">&#9668;</span>
-        <span class="icon" v-if="panels.isFilterOpen">&#9658;</span>
-      </button>
-      <div class="content">
-        <fieldset class="fieldset">
-          <legend class="legend">
-            Filter
-            <span class="badge">{{filteredResidences.length}}</span>
-            <small class="reset float-right" @click="setFilters">reset</small>
-          </legend>
-          <div>
-            <div class="field">
-              <label class="label">Adresse</label>
-              <div>
-                <input type="text" class="input" v-model="filters.searchText">
-              </div>
+          
+          <div class="field">
+            <label class="label">Pris</label>
+            <div class="clearfix">
+              <span class="float-left">{{filters.price.value[0] | toCurrency}}</span>
+              <span class="float-right">{{filters.price.value[1] | toCurrency}}</span>
             </div>
-            
-            <div class="field">
-              <label class="label">Pris</label>
-              <div class="clearfix">
-                <span class="float-left">{{filters.price.value[0] | toCurrency}}</span>
-                <span class="float-right">{{filters.price.value[1] | toCurrency}}</span>
-              </div>
-              <vue-slider ref="sliderPrice" v-bind="filters.price" v-model="filters.price.value"/>  
-            </div>
+            <vue-slider ref="sliderPrice" v-bind="filters.price" v-model="filters.price.value"/>  
+          </div>  
 
-            <div class="field">
-              <label class="label">Størrelse</label>
-              <div class="clearfix">
-                <span class="float-left">{{filters.m2.value[0]}}m²</span>
-                <span class="float-right">{{filters.m2.value[1]}}m²</span>
-              </div>
-              <vue-slider ref="sliderM2" v-bind="filters.m2" v-model="filters.m2.value"/>  
+          <div class="field">
+            <label class="label">Størrelse</label>
+            <div class="clearfix">
+              <span class="float-left">{{filters.m2.value[0]}}m²</span>
+              <span class="float-right">{{filters.m2.value[1]}}m²</span>
             </div>
-
-            <div class="field">
-              <label class="label">Værrelser</label>
-              <div class="clearfix">
-                <span class="float-left">{{filters.rooms.value[0]}}</span>
-                <span class="float-right">{{filters.rooms.value[1]}}</span>
-              </div>
-              <vue-slider ref="sliderRooms" v-bind="filters.rooms" v-model="filters.rooms.value"/>  
-            </div>
-
-            <div class="field">
-              <label class="label">Boligtyper</label>
-              <div v-for="propertyType in filters.propertyTypes" :key="propertyType.text">
-                <label>
-                  <input 
-                    type="checkbox" 
-                      @click="propertyType.checked = !propertyType.checked"
-                    :checked="propertyType.checked"> 
-                      {{propertyType.text}}
-                </label>
-              </div>
-            </div>
-
+            <vue-slider ref="sliderM2" v-bind="filters.m2" v-model="filters.m2.value"/>  
           </div>
-        </fieldset>
-      </div>
-    </div>
+
+          <div class="field">
+            <label class="label">Værrelser</label>
+            <div class="clearfix">
+              <span class="float-left">{{filters.rooms.value[0]}}</span>
+              <span class="float-right">{{filters.rooms.value[1]}}</span>
+            </div>
+            <vue-slider ref="sliderRooms" v-bind="filters.rooms" v-model="filters.rooms.value"/>  
+          </div>
+
+          <div class="field">
+            <label class="label">Boligtyper</label>
+            <div v-for="propertyType in filters.propertyTypes" :key="propertyType.text">
+              <label>
+                <input 
+                  type="checkbox" 
+                  @click="propertyType.checked = !propertyType.checked"
+                  :checked="propertyType.checked"> 
+                    {{propertyType.text}}
+              </label>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </gmap-panel>
+
 
     <GmapMap
       id="gmap-map"
@@ -113,13 +103,11 @@
         :clickable="true"
         :draggable="true"
         :title="m.title"
-        @click="toggleInfoWindow(m,index)"
+        @click="toggleInfoWindow(m)"
       />
-      
       <gmap-info-window :options="infoWindow.options" :position="infoWindow.position" :opened="infoWindow.isOpen" @closeclick="infoWindow.isOpen=false">
         {{infoWindow.content}}
       </gmap-info-window>
-
     </GmapMap>
 
   </section>
@@ -129,12 +117,14 @@
 
 <script>
 import vueSlider from 'vue-slider-component'
+import gmapPanel from './GmapPanel'
 const sliderDefaults = require('./../entities/sliderDefaults.json')
 
 export default {
   name: 'Maps',
   components: {
-    vueSlider
+    vueSlider,
+    gmapPanel
   },
   props: {
     id: {
@@ -161,12 +151,6 @@ export default {
           interval: 1
         }
       },
-      panels: {
-        isFilterOpen: true,
-        isFilterTop: true,
-        isListOpen: true,
-        isListTop: false
-      },
       infoWindow: {
         content: '',
         position: {
@@ -175,7 +159,6 @@ export default {
         },
         isOpen: false,
         currentPropertyId: null,
-        currentMidx: null,
         options: {
           pixelOffset: {
             width: 0,
@@ -277,20 +260,19 @@ export default {
         }
       })
     },
-    toggleInfoWindow (marker, idx) {
-      // TODO refactor to use propertyId instead of index
+    toggleInfoWindow (marker) {
       this.infoWindow.position = marker.position
       this.infoWindow.content = marker.infoText
-      if (this.infoWindow.currentMidx === idx) {
+      if (this.infoWindow.currentPropertyId === marker.propertyId) {
         // check if its the same marker that was selected if yes toggle
         this.infoWindow.isOpen = !this.infoWindow.isOpen
       } else {
         // if different marker set infowindow to open and reset current marker index
         this.infoWindow.isOpen = true
-        this.infoWindow.currentMidx = idx
+        this.infoWindow.currentPropertyId = marker.propertyId
       }
       if (this.infoWindow.isOpen) {
-        this.infoWindow.currentPropertyId = marker.propertyId
+        // this.infoWindow.currentPropertyId = marker.propertyId
         document.getElementById(marker.propertyId).scrollIntoView({behavior: 'smooth'})
       } else {
         this.infoWindow.currentPropertyId = null
@@ -353,84 +335,17 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
-#pane-list {
-  position:absolute;
+#panel-list {
   top:85px;
   left:10px;
   bottom:50px;
-  width:320px;
 }
-#pane-filter {
-  position:absolute;
+#panel-filter {
   top:50px;
   right:10px;
   bottom:140px;
-  width:320px;
 }
 
-.pane {
-  background:#fff;
-  z-index:5000;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-  -webkit-transform: translateX(0px);
-  transform: translateX(0px);
-  transition-property: -webkit-transform,transform,opacity,width;
-  transition-duration: 0.2s;
-  transition-timing-function: cubic-bezier(0.0,0.0,0.2,1); 
-}
-  .pane.is-collapsed {
-    width:0 !important;
-  }
-  .pane.is-top {
-    z-index:6000;
-  }
-
-.toggle {
-  position:absolute;
-  top:0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  outline: 0;
-  font: inherit;
-  vertical-align: baseline;
-  background: transparent;
-  list-style: none;
-  overflow: visible;
-  color: #8c8c8c;
-  cursor:pointer;
-  width: 35px;
-  height: 35px;
-  background:rgba(255,255,255,0.9);
-  border-left: 1px solid #D4D4D4;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3);
-}
-  .toggle.is-left {
-    right:100%;
-  }
-  .toggle.is-right {
-    left:100%;
-  }
-  .toggle:hover, 
-  .toggle:focus { 
-    color:#000;
-  }
-
-.icon {
-  font-size:13px;
-}
-
-.content {
-  background:#fff;
-  overflow-y:auto;
-  overflow-x:hidden;
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;  
-}
 
 .item {
   cursor:pointer;
@@ -449,6 +364,10 @@ export default {
   white-space: normal;
   margin:0;
 }
+  .title a {
+    text-decoration: none;
+    color:#000;
+  }
 
 .text {
   color: #8c8c8c;
