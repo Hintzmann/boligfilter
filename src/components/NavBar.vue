@@ -1,7 +1,7 @@
 <template>
   <div class="navbar">
     <ul>
-      <li v-for="json in store.jsons">
+      <li v-for="(json, index) in store.jsons" :key="index">
         <router-link :to="{ name: 'maps', params: { id: json.name }}" class="navbar navbar__button">
           {{ json.name }}
         </router-link>

@@ -1,16 +1,15 @@
 <template>
   <section class="gmap">
 
-
     <gmap-panel align="left" id="panel-list">
       <div class="item"
           :key="r.propertyId"
-          v-for="(r) in filteredResidences" 
-          :class="{'is-selected': r.propertyId == infoWindow.currentPropertyId }" 
-          :id="r.propertyId" 
+          v-for="(r) in filteredResidences"
+          :class="{'is-selected': r.propertyId == infoWindow.currentPropertyId }"
+          :id="r.propertyId"
           @click="toggleInfoWindow(r)">
         <h2 class="title" role="link" tabindex="0" @focus="toggleInfoWindow(r)">
-          {{r.address1}} 
+          {{r.address1}}
           <br>
           {{r.zipCode.zipCodeId}} {{r.zipCode.name}}
         </h2>
@@ -20,14 +19,13 @@
           </p>
           <p>
             {{r.propertyType.name}},
-            {{r.totalNumberOfRooms}} vær., 
+            {{r.totalNumberOfRooms}} vær.,
             {{r.propertySizeAdvertized}} m²,
             bygget i {{r.builtYear}}
           </p>
         </div>
-      </div>  
+      </div>
     </gmap-panel>
-
 
     <gmap-panel align="right" id="panel-filter">
       <fieldset class="fieldset">
@@ -43,15 +41,15 @@
               <input id="txtAdresse" type="text" class="input" accesskey="s" title="Search [s]" v-model="filters.searchText">
             </div>
           </div>
-          
+
           <div class="field">
             <label class="label">Pris</label>
             <div class="clearfix">
               <span class="float-left">{{filters.price.value[0] | toCurrency}}</span>
               <span class="float-right">{{filters.price.value[1] | toCurrency}}</span>
             </div>
-            <vue-slider ref="sliderPrice" v-bind="filters.price" v-model="filters.price.value"/>  
-          </div>  
+            <vue-slider ref="sliderPrice" v-bind="filters.price" v-model="filters.price.value"/>
+          </div>
 
           <div class="field">
             <label class="label">Størrelse</label>
@@ -59,7 +57,7 @@
               <span class="float-left">{{filters.m2.value[0]}}m²</span>
               <span class="float-right">{{filters.m2.value[1]}}m²</span>
             </div>
-            <vue-slider ref="sliderM2" v-bind="filters.m2" v-model="filters.m2.value"/>  
+            <vue-slider ref="sliderM2" v-bind="filters.m2" v-model="filters.m2.value"/>
           </div>
 
           <div class="field">
@@ -68,17 +66,17 @@
               <span class="float-left">{{filters.rooms.value[0]}}</span>
               <span class="float-right">{{filters.rooms.value[1]}}</span>
             </div>
-            <vue-slider ref="sliderRooms" v-bind="filters.rooms" v-model="filters.rooms.value"/>  
+            <vue-slider ref="sliderRooms" v-bind="filters.rooms" v-model="filters.rooms.value"/>
           </div>
 
           <div class="field">
             <label class="label">Boligtyper</label>
             <div v-for="propertyType in filters.propertyTypes" :key="propertyType.text">
               <label>
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   @click="propertyType.checked = !propertyType.checked"
-                  :checked="propertyType.checked"> 
+                  :checked="propertyType.checked">
                     {{propertyType.text}}
               </label>
             </div>
@@ -86,7 +84,6 @@
         </div>
       </fieldset>
     </gmap-panel>
-
 
     <GmapMap
       id="gmap-map"
@@ -113,10 +110,9 @@
   </section>
 </template>
 
-
-
 <script>
 import vueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 import gmapPanel from './GmapPanel'
 const sliderDefaults = require('./../entities/sliderDefaults.json')
 
@@ -236,9 +232,10 @@ export default {
       // Set Slider value, min and max
       let min = Math.min(...array)
       let max = Math.max(...array)
-      target.value = [min, max]
+      target.value = 0
       target.min = min
       target.max = max
+      target.value = [min, max]
     },
     setFilters () {
       // Search text
@@ -273,7 +270,7 @@ export default {
       }
       if (this.infoWindow.isOpen) {
         // this.infoWindow.currentPropertyId = marker.propertyId
-        document.getElementById(marker.propertyId).scrollIntoView({behavior: 'smooth'})
+        document.getElementById(marker.propertyId).scrollIntoView({ behavior: 'smooth' })
       } else {
         this.infoWindow.currentPropertyId = null
       }
@@ -288,7 +285,7 @@ export default {
         return sum / values.length
       }
       this.$refs.mapRef.$mapPromise.then((map) => {
-        map.panTo({lat: getAvg(lat), lng: getAvg(lng)})
+        map.panTo({ lat: getAvg(lat), lng: getAvg(lng) })
       })
     },
     fetchData () {
@@ -329,24 +326,18 @@ export default {
 }
 </script>
 
-
-
-
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 #panel-list {
-  top:85px;
+  top:70px;
   left:10px;
   bottom:50px;
 }
 #panel-filter {
-  top:50px;
+  top:70px;
   right:10px;
   bottom:140px;
 }
-
-
 .item {
   cursor:pointer;
   padding: 1rem 1.5rem;

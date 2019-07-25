@@ -1,8 +1,8 @@
 <template>
   <div v-show="isVisible" class="gmap-panel" :class="{'is-collapsed': !isOpen}">
-      <button 
-        class="toggle" 
-        :class="{'is-right': (align == 'left'), 'is-left': (align != 'left')}" 
+      <button
+        class="toggle"
+        :class="{'is-right': (align == 'left'), 'is-left': (align != 'left')}"
         @click="isOpen = !isOpen">
           <span aria-hidden="true" class="icon" v-if="isOpen" v-html="align == 'left'?iconOpen:iconClose"></span>
           <span aria-hidden="true" class="icon" v-if="!isOpen" v-html="align == 'left'?iconClose:iconOpen"></span>
@@ -63,7 +63,7 @@ export default {
   transform: translateX(0px);
   transition-property: -webkit-transform,transform,opacity,width;
   transition-duration: 0.2s;
-  transition-timing-function: cubic-bezier(0.0,0.0,0.2,1); 
+  transition-timing-function: cubic-bezier(0.0,0.0,0.2,1);
 }
   .gmap-panel:focus,
   .gmap-panel:hover,
@@ -101,8 +101,8 @@ export default {
   .toggle.is-right {
     left:100%;
   }
-  .toggle:hover, 
-  .toggle:focus { 
+  .toggle:hover,
+  .toggle:focus {
     color:#000;
   }
 
@@ -118,6 +118,6 @@ export default {
   top:0;
   left:0;
   right:0;
-  bottom:0;  
+  bottom:0;
 }
 </style>
